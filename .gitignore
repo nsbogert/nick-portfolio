@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+
+# Build output
+frontend/dist/
+.aws-sam/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# SAM build artifacts
+infrastructure/.aws-sam/
+packaged.yaml
+
+# Logs
+*.log
+npm-debug.log*
