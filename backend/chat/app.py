@@ -16,7 +16,7 @@ from rate_limiter import RateLimiter
 KNOWLEDGE_BASE = load_knowledge_base()
 SYSTEM_PROMPT = build_system_prompt(KNOWLEDGE_BASE)
 TABLE_NAME = os.environ.get("RATE_LIMIT_TABLE", "nick-portfolio-rate-limits")
-BEDROCK_MODEL = os.environ.get("BEDROCK_MODEL", "anthropic.claude-3-haiku-20240307-v1:0")
+BEDROCK_MODEL = os.environ.get("BEDROCK_MODEL", "us.amazon.nova-micro-v1:0")
 ALLOWED_ORIGIN = os.environ.get("ALLOWED_ORIGIN", "*")
 MAX_MESSAGE_LENGTH = 500
 MAX_HISTORY_LENGTH = 20
@@ -50,7 +50,6 @@ def _sanitize(text: str) -> str:
 
 def _get_client_ip(event: dict) -> str:
     """Extract client IP from API Gateway event."""
-    # HTTP API v2 format
     request_context = event.get("requestContext", {})
     http_info = request_context.get("http", {})
     ip = http_info.get("sourceIp", "unknown")
@@ -93,35 +92,29 @@ def handler(event, context):
             "remaining_messages": 0,
         })
 
-    # Build messages for Bedrock
-    bedrock_messages = []
+    # Build messages for Bedrock Converse API
+    converse_messages = []
     for msg in history:
         role = msg.get("role", "user")
         content = msg.get("content", "")
         if role in ("user", "assistant") and content:
-            bedrock_messages.append({
+            converse_messages.append({
                 "role": role,
-                "content": _sanitize(content) if role == "user" else content,
+                "content": [{"text": _sanitize(content) if role == "user" else content}],
             })
 
-    bedrock_messages.append({"role": "user", "content": message})
+    converse_messages.append({"role": "user", "content": [{"text": message}]})
 
-    # Call Bedrock
+    # Call Bedrock Converse API (model-agnostic)
     try:
-        response = bedrock.invoke_model(
+        response = bedrock.converse(
             modelId=BEDROCK_MODEL,
-            contentType="application/json",
-            accept="application/json",
-            body=json.dumps({
-                "anthropic_version": "bedrock-2023-05-31",
-                "max_tokens": 1024,
-                "system": SYSTEM_PROMPT,
-                "messages": bedrock_messages,
-            }),
+            system=[{"text": SYSTEM_PROMPT}],
+            messages=converse_messages,
+            inferenceConfig={"maxTokens": 1024},
         )
 
-        result = json.loads(response["body"].read())
-        assistant_text = result["content"][0]["text"]
+        assistant_text = response["output"]["message"]["content"][0]["text"]
 
         return _response(200, {
             "response": assistant_text,

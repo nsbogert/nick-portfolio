@@ -79,6 +79,7 @@ Resources:
               OriginProtocolPolicy: https-only
               OriginSSLProtocols:
                 - TLSv1.2
+              OriginReadTimeout: 60
 
         DefaultCacheBehavior:
           TargetOriginId: S3Origin
@@ -135,7 +136,7 @@ Resources:
       Environment:
         Variables:
           RATE_LIMIT_TABLE: !Ref RateLimitTable
-          BEDROCK_MODEL: anthropic.claude-3-haiku-20240307-v1:0
+          BEDROCK_MODEL: us.amazon.nova-micro-v1:0
           ALLOWED_ORIGIN: '*'
           KB_PATH: knowledge_base
       Policies:
@@ -146,7 +147,12 @@ Resources:
             - Effect: Allow
               Action:
                 - bedrock:InvokeModel
-              Resource: !Sub arn:aws:bedrock:us-west-2::foundation-model/anthropic.claude-3-haiku-20240307-v1:0
+                - bedrock:Converse
+              Resource:
+                - !Sub arn:aws:bedrock:us-west-2:${AWS::AccountId}:inference-profile/us.amazon.nova-micro-v1:0
+                - arn:aws:bedrock:us-west-2::foundation-model/amazon.nova-micro-v1:0
+                - arn:aws:bedrock:us-east-1::foundation-model/amazon.nova-micro-v1:0
+                - arn:aws:bedrock:us-east-2::foundation-model/amazon.nova-micro-v1:0
       Events:
         ChatPost:
           Type: HttpApi
