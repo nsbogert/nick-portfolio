@@ -13,6 +13,7 @@ KB_FILES = [
     "preferences.md",
     "goals.md",
     "guardrail_wa.md",
+    "refactor_fitness.md",
     "future_ideas.md",
 ]
 
