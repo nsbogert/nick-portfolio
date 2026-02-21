@@ -31,7 +31,7 @@ if [ "$SKIP_BACKEND" = false ]; then
   echo "🔧 Building and deploying SAM stack..."
   cd "$INFRA_DIR"
   sam build --template template.yaml
-  sam deploy --no-confirm-changeset
+  sam deploy
 fi
 
 # ---- Get stack outputs ----

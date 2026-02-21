@@ -1,7 +1,12 @@
+version = 0.1
+
+[default.build.parameters]
+template = "template.yaml"
+
 [default.deploy.parameters]
 stack_name = "nick-portfolio"
 resolve_s3 = true
 s3_prefix = "nick-portfolio"
 region = "us-west-2"
 capabilities = "CAPABILITY_IAM"
-confirm_changeset = true
+confirm_changeset = false

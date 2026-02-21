@@ -11,7 +11,7 @@ Parameters:
 Globals:
   Function:
     Timeout: 30
-    Runtime: python3.12
+    Runtime: python3.13
     Architectures:
       - arm64
 
@@ -119,8 +119,10 @@ Resources:
           - OPTIONS
         AllowHeaders:
           - Content-Type
-      ThrottlingBurstLimit: 10
-      ThrottlingRateLimit: 5
+      RouteSettings:
+        "POST /api/chat":
+          ThrottlingBurstLimit: 10
+          ThrottlingRateLimit: 5
 
   # ---- Lambda Function ----
   ChatFunction:
@@ -130,12 +132,11 @@ Resources:
       Handler: app.handler
       CodeUri: ../backend/chat/
       MemorySize: 256
-      ReservedConcurrentExecutions: 10
       Environment:
         Variables:
           RATE_LIMIT_TABLE: !Ref RateLimitTable
           BEDROCK_MODEL: anthropic.claude-3-haiku-20240307-v1:0
-          ALLOWED_ORIGIN: !Sub https://${CloudFrontDistribution.DomainName}
+          ALLOWED_ORIGIN: '*'
           KB_PATH: knowledge_base
       Policies:
         - DynamoDBCrudPolicy:

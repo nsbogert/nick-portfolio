@@ -28,7 +28,11 @@ __pycache__/
 
 # SAM build artifacts
 infrastructure/.aws-sam/
+.aws-sam/
 packaged.yaml
+
+# Deploy-time copies (built by deploy.sh)
+backend/chat/knowledge_base/
 
 # Logs
 *.log
